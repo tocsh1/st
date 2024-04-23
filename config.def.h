@@ -5,9 +5,9 @@
  *
  * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
  */
-static char *font = "JetBrainsMono Nerd Font :pixelsize=15:antialias=true:autohint=true";
-static char *font2[] = { "JetBrainsMono Nerd Font :pixelsize=15:antialias=true:autohint=true" };
-static int borderpx = 0;
+static char *font = "Iosevka Nerd Font :pixelsize=25:antialias=true:autohint=true";
+static char *font2[] = { "Iosevka Nerd Font :pixelsize=25:antialias=true:autohint=true" };
+static int borderpx = 2;
 
 /*
  * What program is execed by st depends of these precedence rules:
@@ -118,39 +118,39 @@ float alpha = 1.0;
 
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
-  "#282828", /* hard contrast: #1d2021 / soft contrast: #32302f */
-  "#cc241d",
-  "#98971a",
-  "#d79921",
-  "#458588",
-  "#b16286",
-  "#689d6a",
-  "#a89984",
-  "#928374",
-  "#fb4934",
-  "#b8bb26",
-  "#fabd2f",
-  "#83a598",
-  "#d3869b",
-  "#8ec07c",
-  "#ebdbb2",
-  [255] = 0,
-  /* more colors can be added after 255 to use with DefaultXX */
-  "#add8e6", /* 256 -> cursor */
-  "#555555", /* 257 -> rev cursor*/
-  "#282828", /* 258 -> bg */
-  "#ffffff", /* 259 -> fg */
+
+  /* 8 normal colors */
+  [0] = "#212337", /* black   */
+  [1] = "#FF757F", /* red     */
+  [2] = "#7A88CF", /* green   */
+  [3] = "#FFC777", /* yellow  */
+  [4] = "#C099FF", /* blue    */
+  [5] = "#C3E88D", /* magenta */
+  [6] = "#82AAFF", /* cyan    */
+  [7] = "#C8D3F5", /* white   */
+
+  /* 8 bright colors */
+  [8]  = "#444A73",  /* black   */
+  [9]  = "#FF757F",  /* red     */
+  [10] = "#7A88CF", /* green   */
+  [11] = "#FFC777", /* yellow  */
+  [12] = "#C099FF", /* blue    */
+  [13] = "#C3E88D", /* magenta */
+  [14] = "#82AAFF", /* cyan    */
+  [15] = "#C8D3F5", /* white   */
+
+  /* special colors */
+  [256] = "#212337", /* background */
+  [257] = "#C8D3F5", /* foreground */
+  [258] = "#C8D3F5",     /* cursor */
 };
 
-
-/*
- * Default colors (colorname index)
- * foreground, background, cursor, reverse cursor
- */
-unsigned int defaultfg = 259;
-unsigned int defaultbg = 258;
-unsigned int defaultcs = 256;
-unsigned int defaultrcs = 257;
+/* Default colors (colorname index)
+ * foreground, background, cursor */
+ unsigned int defaultbg = 0;
+ unsigned int defaultfg = 257;
+ unsigned int defaultcs = 258;
+ unsigned int defaultrcs= 258;
 
 /*
  * https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h4-Functions-using-CSI-_-ordered-by-the-final-character-lparen-s-rparen:CSI-Ps-SP-q.1D81
@@ -171,7 +171,7 @@ static unsigned int cursorshape = 1;
  * Default columns and rows numbers
  */
 
-static unsigned int cols = 80;
+static unsigned int cols = 92;
 static unsigned int rows = 24;
 
 /*
@@ -263,7 +263,7 @@ static Shortcut shortcuts[] = {
   { XK_ANY_MOD,           XK_Print,       printsel,       {.i =  0} },
   { MODKEY,              XK_comma,       zoom,           {.f = +1} },
   { MODKEY,              XK_period,        zoom,           {.f = -1} },
-  { MODKEY,               XK_g,        zoomreset,      {.f =  0} },
+  { MODKEY | ShiftMask,               XK_r,        zoomreset,      {.f =  0} },
   { ControlMask | ShiftMask,               XK_C,           clipcopy,       {.i =  0} },
   { ShiftMask,            XK_Insert,      clippaste,      {.i =  0} },
   { ControlMask | ShiftMask,               XK_V,           clippaste,      {.i =  0} },
@@ -274,13 +274,13 @@ static Shortcut shortcuts[] = {
   { ShiftMask,            XK_Page_Down,   kscrolldown,    {.i = -1} },
   { MODKEY,               XK_Page_Up,     kscrollup,      {.i = -1} },
   { MODKEY,               XK_Page_Down,   kscrolldown,    {.i = -1} },
-  { MODKEY,               XK_k,           kscrollup,      {.i =  1} },
+  { MODKEY | ShiftMask,   XK_k,           kscrollup,      {.i =  1} },
   { MODKEY,               XK_j,           kscrolldown,    {.i =  1} },
   { MODKEY,               XK_Up,          kscrollup,      {.i =  1} },
   { MODKEY,               XK_Down,        kscrolldown,    {.i =  1} },
   { MODKEY,               XK_u,           kscrollup,      {.i = -1} },
   { MODKEY,               XK_d,           kscrolldown,    {.i = -1} },
-  { MODKEY,		XK_s,		changealpha,	{.f = -0.05} },
+  { MODKEY | ShiftMask,		XK_s,		changealpha,	{.f = -0.05} },
   { MODKEY,		XK_a,		changealpha,	{.f = +0.05} },
   { MODKEY,		XK_m,		changealpha,	{.f = +2.00} },
   { TERMMOD,              XK_Up,          zoom,           {.f = +1} },
@@ -382,7 +382,8 @@ static Key key[] = {
   { XK_KP_Delete,     ControlMask,    "\033[3;5~",    +1,    0},
   { XK_KP_Delete,     ShiftMask,      "\033[2K",      -1,    0},
   { XK_KP_Delete,     ShiftMask,      "\033[3;2~",    +1,    0},
-  { XK_KP_Delete,     XK_ANY_MOD,     "\033[3~",      -1,    0},
+  { XK_KP_Delete,     XK_ANY_MOD,     "\033[P",       -1,    0},
+  { XK_KP_Delete,     XK_ANY_MOD,     "\033[3~",      +1,    0},
   { XK_KP_Multiply,   XK_ANY_MOD,     "\033Oj",       +2,    0},
   { XK_KP_Add,        XK_ANY_MOD,     "\033Ok",       +2,    0},
   { XK_KP_Enter,      XK_ANY_MOD,     "\033OM",       +2,    0},
@@ -449,7 +450,8 @@ static Key key[] = {
   { XK_Delete,        ControlMask,    "\033[3;5~",    +1,    0},
   { XK_Delete,        ShiftMask,      "\033[2K",      -1,    0},
   { XK_Delete,        ShiftMask,      "\033[3;2~",    +1,    0},
-  { XK_Delete,        XK_ANY_MOD,     "\033[3~",      -1,    0},
+  { XK_Delete,        XK_ANY_MOD,     "\033[P",       -1,    0},
+  { XK_Delete,        XK_ANY_MOD,     "\033[3~",      +1,    0},
   { XK_BackSpace,     XK_NO_MOD,      "\177",          0,    0},
   { XK_BackSpace,     Mod1Mask,       "\033\177",      0,    0},
   { XK_Home,          ShiftMask,      "\033[2J",       0,   -1},
